@@ -24,6 +24,7 @@ const TaskItem = ({
   getActivity,
   selectedActivity,
   updateTask,
+  list,
 }) => {
   const { id, title, priority, description } = activ;
   const [openDialog, setOpenDialog] = useState(false);
@@ -44,7 +45,7 @@ const TaskItem = ({
       </DialogActions>
       <DialogTitle>Editar Atividade</DialogTitle>
       <DialogContent>
-        <EditTask selectedActivity={selectedActivity} updateTask={updateTask} handleCancel={handleDialogClose}/>
+        <EditTask selectedActivity={selectedActivity} updateTask={updateTask} handleCancel={handleDialogClose} list={list}/>
       </DialogContent>
     </Dialog>
   );
@@ -104,7 +105,7 @@ const TaskItem = ({
           variant="outlined"
           color="error"
           sx={{ fontSize: "small" }}
-          onClick={() => deleteTask(id)}
+          onClick={() => deleteTask(list.id, activ.id)}
         >
           <DeleteIcon sx={{ fontSize: "medium", marginRight: "0.5rem" }} />{" "}
           Deletar

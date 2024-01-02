@@ -24,7 +24,8 @@ const EditTask = ({
   handleSelection,
   selectedActivity,
   updateTask,
-  handleCancel
+  handleCancel,
+  list
 }) => {
   const [priority, setPriority] = useState("");
   const [activityEdit, setActivityEdit] = useState(selectedActivity);
@@ -53,7 +54,7 @@ const EditTask = ({
   }
 
   const handleSave = () => {
-    updateTask(activityEdit);
+    updateTask(list.id, activityEdit);
     handleCancel();
   };
 

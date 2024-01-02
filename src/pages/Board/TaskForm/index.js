@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 
-const TaskForm = ({ addTask, handleSelection }) => {
+const TaskForm = ({ list, addTask, handleSelection }) => {
   const [priority, setPriority] = useState("");
   //const [lastId, setLastId] = useState(0);
   const [title, setTitle] = useState("");
@@ -32,20 +32,22 @@ const TaskForm = ({ addTask, handleSelection }) => {
     setDescription(e.target.value);
   };
 
+
   const handleAddTask = () => {
     const task = {
-      //id: lastId + 1,
       title: title,
       description: description,
       priority: priority,
+      listId: list
     };
 
-   addTask(task);
+    addTask(list, task);
 
     setPriority("");
     setTitle("");
     setDescription("");
   };
+
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -90,7 +92,7 @@ const TaskForm = ({ addTask, handleSelection }) => {
       <Divider sx={{ m: "1rem" }} />
       <Box sx={{ m: "1rem 0" }}>    
           <Button variant="contained" color="success" onClick={handleAddTask}>
-            +
+            Adicionar cartão
           </Button>
       </Box>
     </Box>

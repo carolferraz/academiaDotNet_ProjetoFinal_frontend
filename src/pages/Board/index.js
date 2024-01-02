@@ -1,73 +1,167 @@
 import { useState, useEffect } from "react";
 import "./styles.css";
-import { Box } from "@mui/material";
-import TaskForm from "./TaskForm/index";
+import { Box, Button } from "@mui/material";
 import TasksList from "./TasksList/index";
 import api from "../../api/task";
 
 const Board = () => {
   const [activities, setActivities] = useState([]);
+  const [lists, setLists] = useState([]);
 
-  const getAllTasks = async () => {
-    const response = await api.get("List/1/tasks");
-    return response.data;
+  const getAllLists = async () => {
+    try {
+      const response = await api.get("List");
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar listas:", error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const fetchListsAndTasks = async () => {
+      try {
+        const allLists = await getAllLists();
+        if (allLists) {
+          setLists(allLists);
+
+          const tasksPromises = allLists.map(async (list) => {
+            const response = await api.get(`List/${list.id}/tasks`);
+            return { listId: list.id, tasks: response.data };
+          });
+
+          const tasksForLists = await Promise.all(tasksPromises);
+          const tasksObj = tasksForLists.reduce((acc, curr) => {
+            acc[curr.listId] = curr.tasks;
+            return acc;
+          }, {});
+          setActivities(tasksObj); // Armazenar as tarefas para cada lista individualmente
+        }
+      } catch (error) {
+        console.error("Erro ao buscar listas:", error);
+      }
+    };
+
+    fetchListsAndTasks();
+  }, []);
+
+  const addList = async () => {
+    try {
+      const response = await api.post("List", {
+        title: "Adicione um título...",
+      });
+      const newList = response.data;
+      setLists([...lists, newList]);
+      setActivities({ ...activities, [newList.id]: [] });
+    } catch (error) {
+      console.error("Erro ao adicionar lista:", error);
+    }
+  };
+
+  const getAllTasks = async (listId) => {
+    const response = await api.get(`List/${listId}/tasks`);
+    return response.data.tasks; // Presumindo que 'tasks' seja o array de objetos de tarefas dentro da resposta
   };
 
   useEffect(() => {
     const getTasks = async () => {
-      const allTasks = await getAllTasks();
-      if (allTasks) setActivities(allTasks);
+      try {
+        lists.forEach(async (list) => {
+          const tasks = await getAllTasks(list.id);
+          // Faça o que você precisa com as tarefas, por exemplo:
+          console.log(tasks);
+        });
+      } catch (error) {
+        console.error("Erro ao obter tarefas:", error);
+      }
     };
 
     getTasks();
-  }, []);
+  }, [lists]);
 
-  const addTask = async (task) => {
-    console.log(task);
-    const response = await api.post("List/1/tasks", task);
-    setActivities([...activities, response.data.newKanbanTask]);
-  };
+  const addTask = async (listId, task) => {
+    console.log(listId, task);
+    try {
+      const response = await api.post(`List/${listId}/tasks`, task);
 
-  const deleteTask = async (id) => {
-    if (await api.delete(`List/1/tasks/${id}`)) {
-      const filterActivity = activities.filter((activ) => activ.id !== id);
-      setActivities([...filterActivity]);
+      const newTask = response.data.newKanbanTask;
+
+      setActivities((prevActivities) => {
+        if (listId in prevActivities) {
+          return {
+            ...prevActivities,
+            [listId]: [...prevActivities[listId], newTask],
+          };
+        } else {
+          return {
+            ...prevActivities,
+            [listId]: [newTask],
+          };
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao adicionar tarefa:", error);
     }
   };
 
-const updateTask = async (ativ) => {
-  const response = await api.put(`List/1/tasks/${ativ.id}`, ativ);
-  const { id } = response.data;
-    setActivities(
-      activities.map((item) => (item.id === id ? response.data : item))
-    );
-  }
+  const deleteTask = async (listId, taskId) => {
+    console.log(listId, taskId);
+    try {
+      await api.delete(`List/${listId}/tasks/${taskId}`);
+      const filteredTasks = activities[listId].filter(
+        (task) => task.id !== taskId
+      );
+      setActivities({ ...activities, [listId]: filteredTasks });
+    } catch (error) {
+      console.error("Erro ao deletar tarefa:", error);
+    }
+  };
 
-// const updateTask = async (ativ) => {
-//   try {
-//     const response = await api.put(`List/1/tasks/${ativ.id}`, ativ);
-//     const updatedTask = response.data;
-
-//     setActivities((prevActivities) =>
-//       prevActivities.map((item) =>
-//         item.id === updatedTask.id ? updatedTask : item
-//       )
-//     );
-//   } catch (error) {
-//     console.error("Erro ao atualizar tarefa:", error);
-//   }
-// };
+  const updateTask = async (listId, updatedTask) => {
+    console.log(listId, updatedTask)
+    try {
+      const response = await api.put(
+        `List/${listId}/tasks/${updatedTask.id}`,
+        updatedTask
+      );
+      const updated = response.data;
+      const updatedTasks = activities[listId].map((task) => {
+        if (task.id === updated.id) {
+          return updated;
+        }
+        return task;
+      });
+      setActivities({ ...activities, [listId]: updatedTasks });
+    } catch (error) {
+      console.error("Erro ao atualizar tarefa:", error);
+    }
+  };
 
   console.log(activities);
   return (
-    <Box className="containerList">
-      <TaskForm addTask={addTask} />
-      {/*Aqui virá a propriedade colunm do banco e farei um map para adicionar novas colunas ao clicar no botão +.*/}
-      <TasksList
-        activities={activities}
-        deleteTask={deleteTask}
-        updateTask={updateTask}
-      />
+    <Box>
+      {/* <TaskForm addTask={addTask} /> */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "baseline",
+          width: "100%",
+        }}
+      >
+        {lists.map((list) => (
+          <TasksList
+            key={list.id}
+            activities={activities[list.id] || []}
+            deleteTask={deleteTask}
+            updateTask={updateTask}
+            addTask={addTask}
+            title={list.title}
+            list={list}
+          />
+        ))}
+        <Button onClick={addList}>Adicionar Lista</Button>
+      </Box>
     </Box>
   );
 };
