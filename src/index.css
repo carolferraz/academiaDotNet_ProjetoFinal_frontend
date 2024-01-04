@@ -1,4 +1,4 @@
-body {
+ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -14,17 +14,5 @@ code {
 
 html {
   margin: 0;
-  background-image: linear-gradient(90deg, #c3d8ff, #c0ffe2d8, #eefcba);
-  animation: bg-animation 13s infinite alternate;
-  background-size: 500%;
 
-}
-
-@keyframes bg-animation {
-  0% {
-    background-position: left;
-  }
-  100% {
-    background-position: right;
-  }
 }

@@ -12,18 +12,17 @@ const Login = () => {
   const [emailOfUser, setEmailOfUser] = useState();
   const [password, setPassword] = useState();
 
-  const navigateHome = async (event) => {
-    event.preventDefault();
-
+  const authenticateUser = async () => {
     try {
-      const response = await axios.post('https://localhost:7109/api/User/users/', {
+      const response = await axios.post('https://localhost:7017/api/User/authenticate', {
         email: emailOfUser,
-        senha: password,
+        password: password
       });
 
       if (response.status === 200) {
-        // Login bem-sucedido - redirecionar para a página home
-        navigate('/home');
+        const token = response.data.token; 
+        localStorage.setItem('token', token);
+        navigate('/board');
       } else {
         setShowError(true);
       }
@@ -33,11 +32,17 @@ const Login = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    authenticateUser();
+  };
+
+
   return (
     <div className="container">
       <div className="inner-container">
         <Typography variant="h4" gutterBottom>
-          Seja bem vindo(a)!
+         Kanban Board
         </Typography>
 
 
@@ -62,15 +67,12 @@ const Login = () => {
           )}
 
         <div className="align-btn">
-          <Button sx={{ mt: "1rem" }} variant="contained" onClick={navigateHome}>
+          <Button sx={{ mt: "1rem" }} variant="contained" onClick={handleSubmit}>
             Entrar
           </Button>
         </div>
 
         <Box>
-          <Link href="#" color="primary">
-            Esqueceu a senha?
-          </Link>
           <Link href="#" color="primary">
             Faça seu cadastro.
           </Link>

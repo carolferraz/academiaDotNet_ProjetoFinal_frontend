@@ -10,11 +10,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import {
-  SentimentDissatisfied as DissatisfiedIcon,
-  SentimentNeutral as NeutralIcon,
-  SentimentSatisfied as SatisfiedIcon,
-} from "@mui/icons-material";
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import EditTask from "./EditTask";
 
@@ -28,6 +24,8 @@ const TaskItem = ({
 }) => {
   const { id, title, priority, description } = activ;
   const [openDialog, setOpenDialog] = useState(false);
+
+  console.log("activ ", activ);
 
   const handleDialogOpen = () => {
     getActivity(id);
@@ -50,38 +48,39 @@ const TaskItem = ({
     </Dialog>
   );
 
-  const setIconPriority = (param) => {
-    switch (param) {
-      case 1:
-        return <SatisfiedIcon sx={{ fontSize: "medium", mr: "0.25rem" }} />;
-      case 2:
-        return <NeutralIcon sx={{ fontSize: "medium", mr: "0.25rem" }} />;
-      case 3:
-        return <DissatisfiedIcon sx={{ fontSize: "medium", mr: "0.25rem" }} />;
-      default:
-        return <NeutralIcon sx={{ fontSize: "medium", mr: "0.25rem" }} />;
-    }
-  };
   const setPriority = (param) => {
     switch (param) {
       case 1:
-        return "Baixa";
+        return " Baixa";
       case 2:
-        return "Normal";
+        return " Normal";
       case 3:
-        return "Alta";
+        return " Alta";
       default:
-        return "Não definida";
+        return " Não definida";
+    }
+  };
+
+  const setPriorityColor = (param) => {
+    switch (param) {
+      case 1:
+        return "success";
+      case 2:
+        return "primary";
+      case 3:
+        return "error";
+      default:
+        return "disable";
     }
   };
 
   return (
-    <Paper sx={{ mt: "0.5rem", m: "1rem", p: "1rem" }} elevation={6}>
+    <Paper sx={{ mt: "0.5rem", m: "1rem", p: "1rem"}} elevation={6}>
       <Box>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h5">{title}</Typography>
-          <Typography variant="inherit'">
-            Prioridade: {setIconPriority(priority)}
+          <Typography variant="h6">{title}</Typography>
+          <Typography fontSize="small" variant="body2" color={setPriorityColor(priority)}>
+            <PriorityHighIcon fontSize="small"/>
             {setPriority(priority)}
           </Typography>
         </Box>
@@ -94,21 +93,17 @@ const TaskItem = ({
       <Divider sx={{ m: "1rem" }} />
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
         <Button
-          variant="outlined"
           sx={{ fontSize: "small" }}
           onClick={handleDialogOpen}
         >
           <EditIcon sx={{ fontSize: "medium", marginRight: "0.5rem" }} />
-          Editar
         </Button>
         <Button
-          variant="outlined"
           color="error"
           sx={{ fontSize: "small" }}
           onClick={() => deleteTask(list.id, activ.id)}
         >
-          <DeleteIcon sx={{ fontSize: "medium", marginRight: "0.5rem" }} />{" "}
-          Deletar
+          <DeleteIcon sx={{ fontSize: "medium", marginRight: "0.5rem" }} />
         </Button>
         {selectedActivity ? dialogContent : console.log(selectedActivity.id)}
       </Box>

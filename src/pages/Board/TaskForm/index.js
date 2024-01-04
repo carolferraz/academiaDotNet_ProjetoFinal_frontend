@@ -15,7 +15,6 @@ import {
 
 const TaskForm = ({ list, addTask, handleSelection }) => {
   const [priority, setPriority] = useState("");
-  //const [lastId, setLastId] = useState(0);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -30,7 +29,7 @@ const TaskForm = ({ list, addTask, handleSelection }) => {
 
   const handleDescriptionChange = (e) => {
     setDescription(e.target.value);
-  };
+};
 
 
   const handleAddTask = () => {
@@ -51,17 +50,23 @@ const TaskForm = ({ list, addTask, handleSelection }) => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography>
-        Atividade
-      </Typography>
-      <FormControl sx={{ width: "15%" }}>
-        <InputLabel id="priority">Selecione</InputLabel>
+      <Input
+        sx={{ mt: "1rem", mr: "1rem" }}
+        id="title"
+        name="title"
+        type="text"
+        placeholder="Título"
+        value={title}
+        onChange={handleTitleChange}
+      />
+      <FormControl sx={{ width: "50%" }}>
+        <InputLabel id="priority">Prioridade</InputLabel>
         <Select
           labelId="priority"
           id="priority"
           name="priority"
           value={priority}
-          label="Selecione"
+          label="Prioridade"
           onChange={handlePriorityChange}
         >
           <MenuItem value={1}>Baixa</MenuItem>
@@ -69,23 +74,14 @@ const TaskForm = ({ list, addTask, handleSelection }) => {
           <MenuItem value={3}>Alta</MenuItem>
         </Select>
       </FormControl>
-      <Input
-        sx={{ m: "1rem" }}
-        id="title"
-        name="title"
-        type="text"
-        placeholder="title"
-        value={title}
-        onChange={handleTitleChange}
-      />
       <TextField
         multiline
         rows={2}
-        sx={{ m: "1rem" }}
+        sx={{ mt: "1rem", width:'100%' }}
         id="description"
         name="description"
         type="text"
-        placeholder="description"
+        placeholder="Descrição"
         value={description}
         onChange={handleDescriptionChange}
       />

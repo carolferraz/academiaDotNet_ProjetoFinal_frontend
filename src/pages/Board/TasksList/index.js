@@ -1,9 +1,29 @@
-import { Box, Paper, TextField, Typography, Button, Dialog, DialogActions, DialogTitle, DialogContent  } from "@mui/material";
+import {
+  Box,
+  Paper,
+  TextField,
+  Typography,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+} from "@mui/material";
+import ClearIcon from '@mui/icons-material/Clear';
 import TaskItem from "../TaskItem/index";
 import TaskForm from "../TaskForm";
 import { useState } from "react";
 
-const TasksList = ({ activities, deleteTask, updateTask, title, addTask, list}) => {
+const TasksList = ({
+  activities,
+  deleteTask,
+  updateTask,
+  title,
+  addTask,
+  list,
+  deleteList,
+  updateListTitle
+}) => {
   const [selectedActivity, setSelectedActivity] = useState({ id: 0 });
   const [editedTitle, setEditedTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
@@ -12,7 +32,7 @@ const TasksList = ({ activities, deleteTask, updateTask, title, addTask, list}) 
   const handleDialogOpen = () => {
     setOpenDialog(true);
   };
-  
+
   const handleDialogClose = () => {
     setOpenDialog(false);
   };
@@ -24,7 +44,11 @@ const TasksList = ({ activities, deleteTask, updateTask, title, addTask, list}) 
       </DialogActions>
       <DialogTitle>Criar novo cartão</DialogTitle>
       <DialogContent>
-        <TaskForm addTask={addTask}  handleCancel={handleDialogClose} list={list.id}/>
+        <TaskForm
+          addTask={addTask}
+          handleCancel={handleDialogClose}
+          list={list.id}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -36,8 +60,10 @@ const TasksList = ({ activities, deleteTask, updateTask, title, addTask, list}) 
   const handleTitleEditStart = () => {
     setIsEditing(true);
   };
-
+  
   const handleTitleEditEnd = () => {
+    list.title = editedTitle;
+    updateListTitle(list.id, list)
     setIsEditing(false);
   };
 
@@ -54,29 +80,36 @@ const TasksList = ({ activities, deleteTask, updateTask, title, addTask, list}) 
 
   return (
     <Paper sx={{ m: "0.5rem", width: "100%" }}>
-      <Box sx={{ mt: "1rem" }}>
-        <Box sx={{ m: "1rem" , display: 'flex', justifyContent: 'space-between'}}>
-        {isEditing ? (
-          <TextField
-            variant="outlined"
+      <Box sx={{ pt: "0.25rem" }}>
+        <Box
+          sx={{ m: "1rem", display: "flex", justifyContent: "space-between" }}
+        >
+          {isEditing ? (
+            <TextField
+              variant="outlined"
+              size="small"
+              value={editedTitle}
+              onChange={handleTitleChange}
+              onBlur={handleTitleEditEnd}
+              onKeyDown={handleKeyPress}
+              autoFocus
+            />
+          ) : (
+            <Typography
+              variant="h6"
+              fontWeight="fontWeightBold"
+              onClick={handleTitleEditStart}
+            >
+              {editedTitle}
+            </Typography>
+          )}
+          <Button
             size="small"
-            value={editedTitle}
-            onChange={handleTitleChange}
-            onBlur={handleTitleEditEnd}
-            onKeyDown={handleKeyPress}
-            autoFocus
-          />
-        ) : (
-          <Typography
-            variant="h6"
-            fontWeight="fontWeightBold"
-            onClick={handleTitleEditStart}
+            sx={{ color: '#757575' }}
+            onClick={()=> {deleteList(list.id)}}
           >
-            {editedTitle}
-          </Typography>
-        )}
-        <Button size="small" variant="outlined" color="success" onClick={handleDialogOpen}>+ Card</Button>
-        {openDialog && dialogContent}
+            <ClearIcon/>
+          </Button>
         </Box>
 
         {activities.map((activ) => (
@@ -90,6 +123,14 @@ const TasksList = ({ activities, deleteTask, updateTask, title, addTask, list}) 
             list={list}
           />
         ))}
+        <Button
+        sx={{width: '100%', color: '#757575', p:'0.5rem'}}
+          size="small"
+          onClick={handleDialogOpen}
+        >
+          Add cartão
+        </Button>
+        {openDialog && dialogContent}
       </Box>
     </Paper>
   );

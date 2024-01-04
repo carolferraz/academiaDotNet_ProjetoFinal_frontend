@@ -1,12 +1,58 @@
 import { useState, useEffect } from "react";
 import "./styles.css";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Grid, Typography, AppBar, Toolbar } from "@mui/material";
 import TasksList from "./TasksList/index";
-import api from "../../api/task";
+import api from "../../api/api";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const Board = () => {
   const [activities, setActivities] = useState([]);
   const [lists, setLists] = useState([]);
+
+  const addList = async () => {
+    try {
+      const response = await api.post("List", {
+        title: "Adicione um título...",
+      });
+      const newList = response.data;
+      setLists([...lists, newList]);
+      setActivities({ ...activities, [newList.id]: [] });
+    } catch (error) {
+      console.error("Erro ao adicionar lista:", error);
+    }
+  };
+
+  const deleteList = async (listId) => {
+    try {
+      await api.delete(`List/${listId}`);
+
+      // Atualiza o estado das listas removendo a lista com o listId correspondente
+      setLists(lists.filter((list) => list.id !== listId));
+
+      // Remove as atividades associadas à lista excluída
+      const updatedActivities = { ...activities };
+      delete updatedActivities[listId];
+      setActivities(updatedActivities);
+    } catch (error) {
+      console.error("Erro ao excluir lista:", error);
+    }
+  };
+
+  const updateListTitle = async (listId, updatedList) => {
+    try {
+      await api.put(`List/${listId}`, updatedList);
+      const updatedLists = lists.map((list) => {
+        if (list.id === listId) {
+          return { ...list, title: updatedList.title };
+        }
+        return list;
+      });
+
+      setLists(updatedLists);
+    } catch (error) {
+      console.error("Erro ao atualizar título da lista:", error);
+    }
+  };
 
   const getAllLists = async () => {
     try {
@@ -35,7 +81,7 @@ const Board = () => {
             acc[curr.listId] = curr.tasks;
             return acc;
           }, {});
-          setActivities(tasksObj); // Armazenar as tarefas para cada lista individualmente
+          setActivities(tasksObj); // Armazena as tarefas para cada lista individualmente
         }
       } catch (error) {
         console.error("Erro ao buscar listas:", error);
@@ -45,31 +91,17 @@ const Board = () => {
     fetchListsAndTasks();
   }, []);
 
-  const addList = async () => {
-    try {
-      const response = await api.post("List", {
-        title: "Adicione um título...",
-      });
-      const newList = response.data;
-      setLists([...lists, newList]);
-      setActivities({ ...activities, [newList.id]: [] });
-    } catch (error) {
-      console.error("Erro ao adicionar lista:", error);
-    }
-  };
-
   const getAllTasks = async (listId) => {
     const response = await api.get(`List/${listId}/tasks`);
-    return response.data.tasks; // Presumindo que 'tasks' seja o array de objetos de tarefas dentro da resposta
+    return response.data.tasks;
   };
 
   useEffect(() => {
     const getTasks = async () => {
       try {
         lists.forEach(async (list) => {
-          const tasks = await getAllTasks(list.id);
-          // Faça o que você precisa com as tarefas, por exemplo:
-          console.log(tasks);
+          const listId = list.id ? list.id : list.newList.id;
+          const tasks = await getAllTasks(listId);
         });
       } catch (error) {
         console.error("Erro ao obter tarefas:", error);
@@ -84,7 +116,7 @@ const Board = () => {
     try {
       const response = await api.post(`List/${listId}/tasks`, task);
 
-      const newTask = response.data.newKanbanTask;
+      const newTask = response.data;
 
       setActivities((prevActivities) => {
         if (listId in prevActivities) {
@@ -118,7 +150,7 @@ const Board = () => {
   };
 
   const updateTask = async (listId, updatedTask) => {
-    console.log(listId, updatedTask)
+    console.log(listId, updatedTask);
     try {
       const response = await api.put(
         `List/${listId}/tasks/${updatedTask.id}`,
@@ -137,31 +169,40 @@ const Board = () => {
     }
   };
 
-  console.log(activities);
   return (
     <Box>
-      {/* <TaskForm addTask={addTask} /> */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "baseline",
-          width: "100%",
-        }}
-      >
+      <AppBar position="static">
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography>Board</Typography>
+          <LogoutIcon />
+        </Toolbar>
+      </AppBar>
+      <Grid container spacing={2}>
         {lists.map((list) => (
-          <TasksList
-            key={list.id}
-            activities={activities[list.id] || []}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
-            addTask={addTask}
-            title={list.title}
-            list={list}
-          />
+          <Grid item xs={3} key={list.id}>
+            <Box
+              sx={{
+                maxHeight: "100vh",
+              }}
+            >
+              <TasksList
+                key={list.id}
+                activities={activities[list.id] || []}
+                deleteTask={deleteTask}
+                updateTask={updateTask}
+                addTask={addTask}
+                title={list.title}
+                list={list}
+                deleteList={deleteList}
+                updateListTitle={updateListTitle}
+              />
+            </Box>
+          </Grid>
         ))}
-        <Button onClick={addList}>Adicionar Lista</Button>
-      </Box>
+        <Grid item xs={3}>
+          <Button onClick={addList}>Adicionar Lista</Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
