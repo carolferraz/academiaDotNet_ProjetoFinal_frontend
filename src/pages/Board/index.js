@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
-import "./styles.css";
-import { Box, Button, Grid, Typography, AppBar, Toolbar } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  AppBar,
+  Toolbar,
+  Link,
+} from "@mui/material";
 import TasksList from "./TasksList/index";
 import api from "../../api/api";
 import LogoutIcon from "@mui/icons-material/Logout";
+import logo from "../../assets/logo.png";
 
 const Board = () => {
   const [activities, setActivities] = useState([]);
@@ -112,7 +119,6 @@ const Board = () => {
   }, [lists]);
 
   const addTask = async (listId, task) => {
-    console.log(listId, task);
     try {
       const response = await api.post(`List/${listId}/tasks`, task);
 
@@ -137,7 +143,6 @@ const Board = () => {
   };
 
   const deleteTask = async (listId, taskId) => {
-    console.log(listId, taskId);
     try {
       await api.delete(`List/${listId}/tasks/${taskId}`);
       const filteredTasks = activities[listId].filter(
@@ -150,7 +155,6 @@ const Board = () => {
   };
 
   const updateTask = async (listId, updatedTask) => {
-    console.log(listId, updatedTask);
     try {
       const response = await api.put(
         `List/${listId}/tasks/${updatedTask.id}`,
@@ -173,8 +177,18 @@ const Board = () => {
     <Box>
       <AppBar position="static">
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography>Board</Typography>
-          <LogoutIcon />
+          <Box
+            component="img"
+            sx={{
+              height: '15%',
+              width: '15%',
+            }}
+            alt="logo"
+            src={logo}
+          />
+          <Link ml={"0.5rem"} href="/" color="primary.contrast">
+            <LogoutIcon />
+          </Link>
         </Toolbar>
       </AppBar>
       <Grid container spacing={2}>

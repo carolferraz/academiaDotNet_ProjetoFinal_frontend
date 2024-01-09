@@ -25,7 +25,6 @@ const TaskItem = ({
   const { id, title, priority, description } = activ;
   const [openDialog, setOpenDialog] = useState(false);
 
-  console.log("activ ", activ);
 
   const handleDialogOpen = () => {
     getActivity(id);

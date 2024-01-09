@@ -2,11 +2,16 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Login from "./pages/Login";
 import Board from "./pages/Board";
+import SignUp from "./pages/Login/SignUp";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
   },
   {
     path: "/board",
@@ -19,6 +24,7 @@ const theme = createTheme({
     mode: "light",
     primary: {
       main: "#034F20",
+      contrast: "#ffffff",
     },
     secondary: {
       main: "#209730",
@@ -27,7 +33,7 @@ const theme = createTheme({
     },
     background: {
       default: "#c0ffe2d9",
-      paper: "#ffffff",
+      paper: "#f5f5f5f5",
     },
     text: {
       secondary: "#209730",
