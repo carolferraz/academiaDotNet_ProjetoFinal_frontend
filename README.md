@@ -35,6 +35,7 @@ Ferramentas utilizadas no desenvolvimento do projeto (frontend):
 
 - React
 - Axios
+- Material UI
 
 
 ## 💡 Contribuindo
